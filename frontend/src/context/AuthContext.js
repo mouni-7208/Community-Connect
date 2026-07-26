@@ -48,12 +48,11 @@ const response = await axios.get('http://13.53.35.122:5000/api/auth/verify');
   }, [token]);
 
   const login = async (email, password) => {
-    try {
-const response = await axios.get('http://13.53.35.122:5000/api/auth/verify');
-        email,
-        password
-      });
-
+  try {
+    const response = await axios.post('http://13.53.35.122:5000/api/auth/login', {
+      email,
+      password
+    });
       if (response.data.token) {
         const { token, user } = response.data;
         localStorage.setItem('token', token);
@@ -70,13 +69,13 @@ const response = await axios.get('http://13.53.35.122:5000/api/auth/verify');
   };
 
   const register = async (name, email, password, role) => {
-    try {
-const response = await axios.get('http://13.53.35.122:5000/api/auth/verify');
-        name,
-        email,
-        password,
-        role
-      });
+  try {
+    const response = await axios.post('http://13.53.35.122:5000/api/auth/register', {
+      name,
+      email,
+      password,
+      role
+    });
 
       if (response.data.token) {
         const { token, user } = response.data;
