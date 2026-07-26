@@ -83,7 +83,7 @@ function App() {
         padding:'20px',marginTop:'40px'
       }}>
         <p style={{margin:0,fontSize:'14px'}}>
-          © 2025 Community Connect –  Capstone | Made with ❤️
+          © 2026 Community Connect | Made with ❤️
         </p>
       </footer>
     </div>
