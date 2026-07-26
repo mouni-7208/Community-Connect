@@ -1,0 +1,74 @@
+.App {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 2rem !important;
+  }
+  
+  header p {
+    font-size: 1rem !important;
+  }
+  
+  header nav button {
+    display: block;
+    width: 80%;
+    margin: 10px auto !important;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+.auth-wrapper{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:#f8f9fa;padding:20px
+}
+.auth-box{
+  background:#fff;padding:40px;border-radius:12px;
+  max-width:400px;width:100%;box-shadow:0 4px 8px rgba(0,0,0,.06)
+}
+.auth-box h2{margin-bottom:24px;text-align:center}
+.auth-box form{display:flex;flex-direction:column;gap:16px}
+.auth-box input,.auth-box select{
+  padding:12px;border:2px solid #e9ecef;border-radius:8px;font-size:14px
+}
+.auth-box button{
+  padding:12px;font-weight:600;border:none;border-radius:8px;
+  background:#007bff;color:#fff;cursor:pointer
+}
+.auth-link{background:none;border:none;color:#007bff;cursor:pointer}
+.auth-error{background:#f8d7da;color:#721c24;padding:10px;border-radius:8px}
