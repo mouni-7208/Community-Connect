@@ -91,7 +91,7 @@ router.post("/:id/apply", async (req, res) => {
     const appliedAt = new Date().toISOString();
 
     const item = {
-      applicationId,
+      applicationID: applicationId,
       projectId,
       volunteerId,
       name,
