@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
       if (token) {
         try {
-const response = await axios.get('http://13.53.35.122:5000/api/auth/verify');
+const response = await axios.get('http://13.49.100.149:5000/api/auth/verify');
           if (response.data.valid) {
             setUser({ id: response.data.volunteerId });
           } else {
@@ -49,7 +49,7 @@ const response = await axios.get('http://13.53.35.122:5000/api/auth/verify');
 
   const login = async (email, password) => {
   try {
-    const response = await axios.post('http://13.53.35.122:5000/api/auth/login', {
+    const response = await axios.post('http://13.49.100.149:5000/api/auth/login', {
       email,
       password
     });
@@ -70,7 +70,7 @@ const response = await axios.get('http://13.53.35.122:5000/api/auth/verify');
 
   const register = async (name, email, password, role) => {
   try {
-    const response = await axios.post('http://13.53.35.122:5000/api/auth/register', {
+    const response = await axios.post('http://13.49.100.149:5000/api/auth/register', {
       name,
       email,
       password,

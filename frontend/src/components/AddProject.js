@@ -39,7 +39,7 @@ const AddProject = ({ onProjectAdded }) => {
         deadline: formData.deadline || undefined
       };
 
-      const response = await axios.post('http://3.110.217.9:5000/api/projects', projectData);
+      const response = await axios.post('http://13.49.100.149:5000/api/projects', projectData);
 
       if (response.data.success) {
         setSuccess(true);

@@ -24,7 +24,7 @@ const ApplyModal = ({ project, onClose, onSuccess }) => {
 
     try {
       const response = await axios.put(
-        `http://3.110.217.9:5000/api/projects/${project._id}/apply`,
+        `http://13.49.100.149:5000/api/projects/${project._id}/apply`,
         {
           name: formData.name,
           email: formData.email
