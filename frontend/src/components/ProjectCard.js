@@ -1,6 +1,12 @@
 import React from 'react';
 
 const ProjectCard = ({ project, onApply }) => {
+  const skillsArray = Array.isArray(project.requiredSkills)
+    ? project.requiredSkills
+    : typeof project.requiredSkills === 'string' && project.requiredSkills.length > 0
+      ? project.requiredSkills.split(',').map(s => s.trim()).filter(Boolean)
+      : [];
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-IN');
   };
@@ -102,7 +108,7 @@ const ProjectCard = ({ project, onApply }) => {
         )}
       </div>
 
-      {project.requiredSkills && project.requiredSkills.length > 0 && (
+      {skillsArray.length > 0 && (
         <div style={{ marginBottom: '16px' }}>
           <p style={{ 
             fontSize: '12px', 
@@ -113,7 +119,7 @@ const ProjectCard = ({ project, onApply }) => {
             Skills needed:
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-            {project.requiredSkills.slice(0, 3).map((skill, index) => (
+            {skillsArray.slice(0, 3).map((skill, index) => (
               <span key={index} style={{
                 backgroundColor: '#f8f9fa',
                 color: '#495057',
@@ -125,9 +131,9 @@ const ProjectCard = ({ project, onApply }) => {
                 {skill}
               </span>
             ))}
-            {project.requiredSkills.length > 3 && (
+            {skillsArray.length > 3 && (
               <span style={{ fontSize: '11px', color: '#6c757d' }}>
-                +{project.requiredSkills.length - 3} more
+                +{skillsArray.length - 3} more
               </span>
             )}
           </div>
