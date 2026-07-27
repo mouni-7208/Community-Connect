@@ -1,14 +1,14 @@
+
 import express from "express";
 import {
   createProject,
   getProject,
   listProjects,
   deleteProject
-} from "../models/Project.js";
+} from "../models/project.js";
 
 const router = express.Router();
 
-// ✅ Get all projects
 router.get("/", async (req, res) => {
   try {
     const projects = await listProjects();
@@ -23,7 +23,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ Get single project
 router.get("/:id", async (req, res) => {
   try {
     const project = await getProject(req.params.id);
@@ -36,7 +35,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ Create new project
 router.post("/", async (req, res) => {
   try {
     const project = await createProject(req.body);
@@ -51,7 +49,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ✅ Delete project
 router.delete("/:id", async (req, res) => {
   try {
     await deleteProject(req.params.id);
@@ -62,15 +59,12 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-export default router;
-
-// ✅ Volunteer Apply to Project
 import AWS from "aws-sdk";
 import { v4 as uuidv4 } from "uuid";
 
-const dynamo = new AWS.DynamoDB.DocumentClient({ region: "ap-south-1" });
+const dynamo = new AWS.DynamoDB.DocumentClient({ region: "eu-north-1" });
 const APPLICATIONS_TABLE = "ApplicationsTable";
-const sns = new AWS.SNS({ region: "ap-south-1" }); // ✅ initialize SNS client
+const sns = new AWS.SNS({ region: "eu-north-1" });
 
 router.post("/:id/apply", async (req, res) => {
   try {
@@ -81,7 +75,6 @@ router.post("/:id/apply", async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    // Prevent duplicate applications
     const existing = await dynamo
       .scan({
         TableName: APPLICATIONS_TABLE,
@@ -96,9 +89,9 @@ router.post("/:id/apply", async (req, res) => {
 
     const applicationId = uuidv4();
     const appliedAt = new Date().toISOString();
-    
+
     const item = {
-      applicationId, // <-- required partition key
+      applicationId,
       projectId,
       volunteerId,
       name,
@@ -107,32 +100,21 @@ router.post("/:id/apply", async (req, res) => {
       appliedAt
     };
 
-    console.log("DEBUG: putting item into ApplicationsTable:", JSON.stringify(item));
     await dynamo.put({
-        TableName: APPLICATIONS_TABLE,
-        Item: item
-	    //{
-          //applicationId,
-          //projectId,
-          //volunteerId,
-          //name,
-          //email,
-          //status: "Pending",
-          //appliedAt
-        //}
-       }).promise();
+      TableName: APPLICATIONS_TABLE,
+      Item: item
+    }).promise();
 
     try {
-      const sns = new AWS.SNS({ region: "ap-south-1" });
       const message = `New volunteer "${name}" (${email}) has applied to project ID: ${projectId}`;
       await sns.publish({
         Message: message,
         Subject: "New Volunteer Application - Community Connect",
-        TopicArn: process.env.SNS_TOPIC_ARN, // must be in .env file
+        TopicArn: process.env.SNS_TOPIC_ARN,
       }).promise();
-     } catch (snsError){
-       console.warm("SNS notification failed:" , snsError.message);
-     }
+    } catch (snsError) {
+      console.warn("SNS notification failed:", snsError.message);
+    }
 
     res.status(201).json({ success: true, message: "Application submitted successfully" });
   } catch (err) {
@@ -140,3 +122,5 @@ router.post("/:id/apply", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error", error: err.message });
   }
 });
+
+export default router;

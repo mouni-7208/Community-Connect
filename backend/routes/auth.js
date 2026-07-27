@@ -1,18 +1,17 @@
+
 import express from "express";
-import AWS from "aws-sdk";
+import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import dynamo from "../utils/dynamoClient.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
-const dynamo = new AWS.DynamoDB.DocumentClient({ region: "ap-south-1" });
-const USERS_TABLE = "VolunteersTable"; // DynamoDB table name
+const USERS_TABLE = "VolunteersTable";
 
-// Generate JWT Token
 const generateToken = (volunteerId) =>
   jwt.sign({ volunteerId }, process.env.JWT_SECRET || "secret", { expiresIn: "7d" });
 
-// ✅ Register User
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -21,22 +20,13 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Check if email already exists
-    //const existingUsers = await dynamo
-      //.scan({
-        //TableName: USERS_TABLE,
-        //FilterExpression: "email = :email",
-        //ExpressionAttributeValues: { ":email": email },
-     // })
-      const existingUsers = await dynamo
-  	.query({
-   	 TableName: USERS_TABLE,
-    	IndexName: 'email-index',
-    	KeyConditionExpression: 'email = :email',
-    	ExpressionAttributeValues: { ':email': email },
-    	Limit: 1
-  	})
-      .promise();
+    const existingUsers = await dynamo.send(new QueryCommand({
+      TableName: USERS_TABLE,
+      IndexName: 'email-index',
+      KeyConditionExpression: 'email = :email',
+      ExpressionAttributeValues: { ':email': email },
+      Limit: 1
+    }));
 
     if (existingUsers.Items && existingUsers.Items.length > 0) {
       return res.status(400).json({ message: "User already exists" });
@@ -45,20 +35,17 @@ router.post("/register", async (req, res) => {
     const volunteerId = uuidv4();
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save user in DynamoDB
-    await dynamo
-      .put({
-        TableName: USERS_TABLE,
-        Item: {
-          volunteerId,
-          name,
-          email,
-          password: hashedPassword,
-          role,
-          createdAt: new Date().toISOString(),
-        },
-      })
-      .promise();
+    await dynamo.send(new PutCommand({
+      TableName: USERS_TABLE,
+      Item: {
+        VolunteerID: volunteerId,
+        name,
+        email,
+        password: hashedPassword,
+        role,
+        createdAt: new Date().toISOString(),
+      },
+    }));
 
     const token = generateToken(volunteerId);
     res.status(201).json({
@@ -73,43 +60,29 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ✅ Login User
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    //const userResult = await dynamo
-      //.scan({
-        //TableName: USERS_TABLE,
-        //FilterExpression: "email = :email",
-        //ExpressionAttributeValues: { ":email": email },
-      //})
-      //.promise();
+    const userResult = await dynamo.send(new QueryCommand({
+      TableName: USERS_TABLE,
+      IndexName: 'email-index',
+      KeyConditionExpression: 'email = :email',
+      ExpressionAttributeValues: { ':email': email },
+      Limit: 1
+    }));
 
-    //if (!userResult.Items || userResult.Items.length === 0) {
-      //return res.status(400).json({ message: "Invalid credentials" });
-    //}
+    if (!userResult.Items || userResult.Items.length === 0) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
-    const userResult = await dynamo
-  	.query({
-    		TableName: USERS_TABLE,
-    		IndexName: 'email-index',
-    		KeyConditionExpression: 'email = :email',
-    		ExpressionAttributeValues: { ':email': email },
-    		Limit: 1
-  		})
-  	.promise();
-
-	if (!userResult.Items || userResult.Items.length === 0) {
-  	return res.status(400).json({ message: "Invalid credentials" });
-	}
     const user = userResult.Items[0];
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const token = generateToken(user.volunteerId);
+    const token = generateToken(user.VolunteerID);
     res.json({ success: true, message: "Login successful", token, user });
   } catch (error) {
     console.error("Login error:", error);
@@ -117,7 +90,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ✅ Verify Token
 router.get("/verify", (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ message: "Token missing" });
