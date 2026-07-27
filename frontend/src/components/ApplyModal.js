@@ -23,9 +23,10 @@ const ApplyModal = ({ project, onClose, onSuccess }) => {
     setError('');
 
     try {
-      const response = await axios.put(
+      const response = await axios.post(
         `http://13.49.100.149:5000/api/projects/${project._id}/apply`,
         {
+          volunteerId: formData.email,
           name: formData.name,
           email: formData.email
         }
