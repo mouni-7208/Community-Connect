@@ -27,7 +27,7 @@ const ProjectList = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://3.110.217.9:5000/api/projects');
+      const response = await axios.get('http://13.49.100.149:5000/api/projects');
       
       if (response.data.success) {
         setProjects(response.data.data);
